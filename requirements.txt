@@ -1,0 +1,17 @@
+openai
+python-dotenv
+PyMuPDF
+pandas
+openpyxl
+slack_sdk
+flask
+selenium
+gradio
+py7zr
+matplotlib
+numpy
+pillow
+opencv-python
+webdriver-manager
+html2text
+XlsxWriter
