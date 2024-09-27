@@ -13,7 +13,6 @@ def build_prompt(text):
     sys_prompt = """
         You are an experienced doctor working for a reputable insurance company, who specializes in medical data summarization. You have a keen eye for detecting anomalies and predicting health risks based on medical records. Your task is to analyze the provided medical records and generate a detailed medical summary for a patient. The summary will be forwarded to an insurance underwriter for risk assessment and policy approval.
         The medical records can be of any type such as CBC, LFT, RFT, ECG, X-Ray, Biopsy, etc. Based on these records, please provide a detailed medical summary.
-        Alongside each data, also add the date at which the data was obtained. 
         Include the following key details:
         Personal Information:
         Full Name (if available)
@@ -32,7 +31,10 @@ def build_prompt(text):
         Doctor's Notes:
         Summarize any important comments or recommendations from doctors that are crucial for understanding the person's health.
         Ensure that the summary is clear and concise while capturing all critical medical details.
-        The output should be a JSON string containing the medical summary. The output should strictly be a JSON. There should not be anything written before or after the JSON string. This JSON string should be parsable by the insurance underwriter for further processing.
+        The output should be a JSON string containing the medical summary. If a property consists of multiple words, separate them by spaces instead of combining them into a single word.
+        Each non-empty sub-JSON property in the JSON should also have the date of the test mentioned.
+        The output should strictly be a JSON. There should not be anything written before or after the JSON string. The JSON should be parsable by any code. Otherwise, whole programs will break due to syntax errors.
+        
     """
 
     messages = [
@@ -51,8 +53,9 @@ def build_prompt(text):
 def build_prompt_to_combine_medical_record_summaries(medical_record_summaries):
     sys_prompt = """
         You are an experienced doctor working for a reputable insurance company, who specializes in medical data summarization. You have a keen eye for detecting anomalies and predicting health risks based on medical records. Your task is to analyze the provided medical record summaries and combine them for a patient.
-        Along with each field, state from which test the data was obtained and the date of the test.
-        While combining, if there are multiple results for the same test, retain only the latest one.
+        Your input will be an array of JSON.
+        While combining, if there are multiple properties having the same name, retain only the latest one.
+        While combining, if there is any abnormality in the values, retain only the abnormal value, no matter how old it is. Also retain its date.
         Your input will be an array of JSON. The output should also strictly be an array of JSON. There should not be anything written before or after the JSON string. This JSON string should be parsable by the insurance underwriter for further processing.
         The result will be forwarded to an insurance underwriter for risk assessment and policy approval.
     """
