@@ -2,6 +2,7 @@ import os
 import fitz
 import requests
 import json
+import pdfkit
 
 def extract_text_from_all_pdfs(directory):
     """Extract and append text from all PDF files in a directory."""
@@ -71,3 +72,10 @@ def convert_to_json(chat_res, combined_data = []):
         print("Invalid JSON response from the model")
         print(e)
         raise
+
+def html_string_to_pdf(html_string, output_pdf_path):
+    try:
+        pdfkit.from_string(html_string, output_pdf_path)
+        print(f"Successfully converted HTML string to {output_pdf_path}")
+    except Exception as e:
+        print(f"Error occurred: {e}")

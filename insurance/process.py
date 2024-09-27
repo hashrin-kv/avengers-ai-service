@@ -1,10 +1,11 @@
+import shutil
 from insurance.records import get_records
 
 from openai import OpenAI
 from openai import RateLimitError
 import env_loader
 import os
-from utils import convert_to_json, extract_text_from_all_pdfs, extract_text_from_pdf
+from utils import convert_to_json, extract_text_from_all_pdfs, extract_text_from_pdf, html_string_to_pdf
 
 api_key = env_loader.get_environment_variable("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
@@ -58,7 +59,7 @@ def build_prompt_to_combine_medical_record_summaries(medical_record_summaries):
         While combining, if the same test is present in multiple reports for a patient, retain only the latest one.
         While combining, if there is any abnormality in the values, retain only the abnormal value, no matter how old it is. Also retain its date.
         While combining, along with each observation, mention the date of the record and also the file name from which the record was extracted.
-        Your input will be an array of JSON. The output should also strictly be a JSON. There should not be anything written before or after the JSON string. This JSON string should be parsable by the insurance underwriter for further processing.
+        Your input will be an array of JSON. The output should be of HTML format. The title should be "Medical Record Summary". Each person's name should be given as "Applicant Name". 
         The result will be forwarded to an insurance underwriter for risk assessment and policy approval.
     """
     messages = [
@@ -78,13 +79,19 @@ def summarize():
     # records = get_records()
     # combined_records = "\n".join(records)
     current_directory = os.path.dirname(__file__)
-    medical_record_directory = os.path.join(current_directory, "medical_records/hashrin")
+    
+    medical_record_directory = os.path.join(current_directory, "medical_records")
+    # shutil.rmtree(medical_record_directory) # clear the directory
+    # os.makedirs(medical_record_directory) # recreate the directory
+        
+
     medical_summaries = []
     for filename in os.listdir(medical_record_directory):
         print(filename)
         if filename.endswith(".pdf"):  # Only process PDF files
             pdf_path = os.path.join(medical_record_directory, filename)
             medical_record_data = extract_text_from_pdf(pdf_path)
+            medical_record_data = "file name: " + filename + "\n" + medical_record_data
             prompt = build_prompt(medical_record_data)
             llm_response = call_llm(prompt)
             llm_response = llm_response.strip()
@@ -97,16 +104,21 @@ def summarize():
 
     # medical_record_data = extract_text_from_all_pdfs(medical_record_directory)
     combined_summary_prompt = build_prompt_to_combine_medical_record_summaries(medical_summaries)
-    llm_response = call_llm(combined_summary_prompt)
-    if(llm_response.startswith("```json")):
-        llm_response = llm_response[7:].strip()
-    if(llm_response.endswith("```")):
-        llm_response = llm_response[:-3].strip()
-    result = []
-    convert_to_json(llm_response, result)
+    final_llm_response = call_llm(combined_summary_prompt)
+    final_llm_response = final_llm_response.strip()
+    if(final_llm_response.startswith("```html")):
+        final_llm_response = final_llm_response[7:].strip()
+    if(final_llm_response.endswith("```")):
+        final_llm_response = final_llm_response[:-3].strip()
+    
+    output_pdf_path = os.path.join(current_directory, "medical_records_output")
+    if os.path.exists(output_pdf_path):
+        shutil.rmtree(output_pdf_path)
+    os.makedirs(output_pdf_path) # recreate the directory
 
-    print("Final result:\n", result)
-    return result
+    html_string_to_pdf(final_llm_response, output_pdf_path + "/medical_record_summary.pdf")
+
+    return final_llm_response
 
 def call_llm(messages, model="gpt-4o-mini"):
     try:
