@@ -1,5 +1,6 @@
 import random
 from fastapi import FastAPI, HTTPException
+from insurance import process
 from knowledge_base import builder
 from email_classifier import classifier
 from models import ContextBuilderBody, EmailClassifierBody, ResumeParserBody
@@ -29,4 +30,9 @@ def classify_text(body: EmailClassifierBody):
 @app.post("/knowledge-base")
 def create_knowledge_base(body: ContextBuilderBody):
     result = builder.build_knowledge_base(body.name, body.urls)
+    return result
+
+@app.post("/medical-summary")
+def summarize_medical_records():
+    result = process.summarize()
     return result
