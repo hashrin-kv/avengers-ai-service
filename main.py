@@ -1,6 +1,6 @@
 import random
 from fastapi import FastAPI, HTTPException
-from context_builder import builder
+from knowledge_base import builder
 from email_classifier import classifier
 from models import ContextBuilderBody, EmailClassifierBody, ResumeParserBody
 from resume_parser import parser
@@ -24,4 +24,9 @@ def parse_resume(body: ResumeParserBody):
 @app.post("/classify-email")
 def classify_text(body: EmailClassifierBody):
     result = classifier.classify(body.text)
+    return result
+
+@app.post("/knowledge-base")
+def create_knowledge_base(body: ContextBuilderBody):
+    result = builder.build_knowledge_base(body.name, body.urls)
     return result

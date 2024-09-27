@@ -8,9 +8,15 @@ flask
 selenium
 gradio
 py7zr
-matplotlib
 numpy
 pillow
 opencv-python
 webdriver-manager
 html2text
+langchain
+langchain-community
+langchain-core
+langchain_openai
+unstructured
+unstructured[pdf]
+langchain-chroma>=0.1.2
