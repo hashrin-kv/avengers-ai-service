@@ -47,11 +47,10 @@ def download_file_from_google_drive(url, save_path):
     print(f"File downloaded successfully: {save_path}")
 
 
-def convert_to_json(chat_res, extracted_content):
+def convert_to_json(chat_res):
     try:
         result = json.loads(chat_res)
-        print("Json Response:\n", result)
-        extracted_content.append(result)
+        return result
         
     except json.JSONDecodeError as e:
         print("Invalid JSON response from the model")

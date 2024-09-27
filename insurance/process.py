@@ -29,6 +29,7 @@ def build_prompt(text):
         Doctor's Notes:
         Summarize any important comments or recommendations from doctors that are crucial for understanding the person's health.
         Ensure that the summary is clear and concise while capturing all critical medical details.
+        The output should be a JSON string containing the medical summary. The output should exactly be a JSON. There should not be anything written before or after the JSON string.
     """
 
     messages = [
@@ -45,17 +46,17 @@ def build_prompt(text):
     return messages
 
 def summarize():
-    result = []
     records = get_records()
     combined_records = "\n".join(records)
     prompt = build_prompt(combined_records)
 
     llm_response = call_llm(prompt)
+    print("LLM response:\n", llm_response)
 
-    #convert_to_json(llm_response, result)
+    result = convert_to_json(llm_response)
 
-    #print("Final result:\n", result)
-    return llm_response
+    print("Final result:\n", result)
+    return result
 
 def call_llm(messages, model="gpt-4o-mini"):
     try:
