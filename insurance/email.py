@@ -1,5 +1,6 @@
 import base64
 import os
+import shutil
 import env_loader
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from google.oauth2.credentials import Credentials
@@ -69,6 +70,10 @@ def process_new_email():
 
         # Define the directory to save attachments
         ATTACHMENT_DIR = "received_attachments"
+
+        if os.path.exists(ATTACHMENT_DIR):
+            shutil.rmtree(ATTACHMENT_DIR)
+        
         # Create the directory if it doesn't exist
         os.makedirs(ATTACHMENT_DIR, exist_ok=True)
 
@@ -117,6 +122,13 @@ def process_new_email():
         # Reply back to sender of latest inbox email with the summary and its attachments
         print(sender)
         send_email(sender, subject, summary, summary_email_attachments_path)
+        
+        if os.path.exists(summary_email_attachments_path):
+            shutil.rmtree(summary_email_attachments_path)
+
+        if os.path.exists(ATTACHMENT_DIR):
+            shutil.rmtree(ATTACHMENT_DIR)
+        
         return {"status": "SUCCESS"}
 
     except Exception as e:

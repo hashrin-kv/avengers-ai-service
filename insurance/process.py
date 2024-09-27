@@ -128,7 +128,7 @@ def summarize(medical_record_directory):
     output_pdf_path = output_pdf_directory + "/medical_record_summary.pdf"
     html_string_to_pdf(final_llm_response, output_pdf_path)
 
-    return final_llm_response, output_pdf_directory
+    return "PFA medical record summary", output_pdf_directory
 
 def call_llm(messages, model="gpt-4o-mini"):
     try:

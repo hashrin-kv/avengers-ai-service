@@ -1,3 +1,5 @@
 .env
 __pycache__
 venv/
+token.json
+client_secret_402385451752-a15om02vgjc86lh9sble96u3k2ntkgfn.apps.googleusercontent.com.json
