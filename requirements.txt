@@ -21,3 +21,8 @@ unstructured
 unstructured[pdf]
 langchain-chroma>=0.1.2
 pdfkit
+requests
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
