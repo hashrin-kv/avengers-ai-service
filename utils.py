@@ -3,11 +3,25 @@ import fitz
 import requests
 import json
 
+def extract_text_from_all_pdfs(directory):
+    """Extract and append text from all PDF files in a directory."""
+    combined_text = ""
+    for filename in os.listdir(directory):
+        print(filename)
+        if filename.endswith(".pdf"):  # Only process PDF files
+            pdf_path = os.path.join(directory, filename)
+            print(f"Extracting text from: {pdf_path}")
+            pdf_text = extract_text_from_pdf(pdf_path)
+            combined_text += pdf_text + "\n"  # Append text with a newline
+    return combined_text
+
 def extract_text_from_pdf(pdf_path):
     text = ""
-    with fitz.open(pdf_path) as doc:
-        for page in doc:
-            text += page.get_text()
+    if pdf_path.endswith(".pdf"):
+        print(f"Extracting text from: {pdf_path}")
+        with fitz.open(pdf_path) as doc:
+            for page in doc:
+                text += page.get_text()
     return text
 
 
@@ -47,9 +61,10 @@ def download_file_from_google_drive(url, save_path):
     print(f"File downloaded successfully: {save_path}")
 
 
-def convert_to_json(chat_res):
+def convert_to_json(chat_res, combined_data = []):
     try:
         result = json.loads(chat_res)
+        combined_data.append(result)
         return result
         
     except json.JSONDecodeError as e:

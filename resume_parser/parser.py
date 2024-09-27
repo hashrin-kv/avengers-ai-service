@@ -77,7 +77,6 @@ def find_experience_duration(experiences):
 
 def extract(resume_file_path):
     print(api_key)
-    extracted_content = []
 
     resume_text = extract_text_from_pdf(resume_file_path)
 
@@ -85,11 +84,11 @@ def extract(resume_file_path):
 
     chat_res = call_llm(messages)
 
-    convert_to_json(chat_res, extracted_content)
+    convert_to_json(chat_res)
         
 
-    print("Final result:\n", extracted_content)
-    return extracted_content
+    print("Final result:\n", chat_res)
+    return chat_res
 
 def build_resume_extraction_prompt(resume_text):
     year = datetime.now().year
