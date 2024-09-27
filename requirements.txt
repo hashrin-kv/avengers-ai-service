@@ -14,4 +14,3 @@ pillow
 opencv-python
 webdriver-manager
 html2text
-XlsxWriter

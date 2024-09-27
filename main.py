@@ -20,3 +20,8 @@ def parse_resume(body: ResumeParserBody):
     result = parser.extract(path)
     # print(result)
     return result
+
+@app.post("/classify-email")
+def classify_text(body: EmailClassifierBody):
+    result = classifier.classify(body.text)
+    return result
