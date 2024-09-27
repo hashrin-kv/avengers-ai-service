@@ -75,15 +75,24 @@ def build_prompt_to_combine_medical_record_summaries(medical_record_summaries):
 
     return messages
 
-def summarize():
+def summarize(medical_record_directory):
     # records = get_records()
     # combined_records = "\n".join(records)
-    current_directory = os.path.dirname(__file__)
     
-    medical_record_directory = os.path.join(current_directory, "medical_records")
+    current_directory = os.path.dirname(__file__)
+    # medical_record_directory = os.path.join(current_directory, "medical_records")
+    
     # shutil.rmtree(medical_record_directory) # clear the directory
     # os.makedirs(medical_record_directory) # recreate the directory
-        
+
+    if not os.path.exists(medical_record_directory):
+        print(f"The directory '{medical_record_directory}' does not exist.")
+        raise FileNotFoundError
+    
+    # Check if the directory is empty
+    if not os.listdir(medical_record_directory):
+        print(f"The directory '{medical_record_directory}' is empty.")
+        raise FileNotFoundError
 
     medical_summaries = []
     for filename in os.listdir(medical_record_directory):
@@ -111,14 +120,15 @@ def summarize():
     if(final_llm_response.endswith("```")):
         final_llm_response = final_llm_response[:-3].strip()
     
-    output_pdf_path = os.path.join(current_directory, "medical_records_output")
-    if os.path.exists(output_pdf_path):
-        shutil.rmtree(output_pdf_path)
-    os.makedirs(output_pdf_path) # recreate the directory
+    output_pdf_directory = os.path.join(current_directory, "medical_records_output")
+    if os.path.exists(output_pdf_directory):
+        shutil.rmtree(output_pdf_directory)
+    os.makedirs(output_pdf_directory) # recreate the directory
 
-    html_string_to_pdf(final_llm_response, output_pdf_path + "/medical_record_summary.pdf")
+    output_pdf_path = output_pdf_directory + "/medical_record_summary.pdf"
+    html_string_to_pdf(final_llm_response, output_pdf_path)
 
-    return final_llm_response
+    return final_llm_response, output_pdf_directory
 
 def call_llm(messages, model="gpt-4o-mini"):
     try:
