@@ -30,10 +30,11 @@ def build_prompt(text):
         Highlight any test results or values that are outside the normal range (e.g., blood pressure, cholesterol, etc.), and mention the normal reference ranges for comparison.
         Doctor's Notes:
         Summarize any important comments or recommendations from doctors that are crucial for understanding the person's health.
+        File name:
+        Provide the name of the file from which the record was extracted.
+        Each observation should have the date of the record mentioned along with it. This is very important because the observations from multiple reports will be compared using date later.
         Ensure that the summary is clear and concise while capturing all critical medical details.
-        The output should be a JSON string containing the medical summary. If a property consists of multiple words, separate them by spaces instead of combining them into a single word.
-        Each non-empty sub-JSON property in the JSON should also have the date of the test mentioned.
-        The output should strictly be a JSON. There should not be anything written before or after the JSON string. The JSON should be parsable by any code. Otherwise, whole programs will break due to syntax errors.
+        The output should be a valid, well-formed JSON. Do not include any text before or after the JSON output. The JSON output should be parsable by any programming language.
         
     """
 
@@ -53,10 +54,11 @@ def build_prompt(text):
 def build_prompt_to_combine_medical_record_summaries(medical_record_summaries):
     sys_prompt = """
         You are an experienced doctor working for a reputable insurance company, who specializes in medical data summarization. You have a keen eye for detecting anomalies and predicting health risks based on medical records. Your task is to analyze the provided medical record summaries and combine them for a patient.
-        Your input will be an array of JSON.
-        While combining, if there are multiple properties having the same name, retain only the latest one.
+        Your input will be an array of JSON which can either have records of a single patient, or have records of multiple patients. You should identify the records of the same patient and combine them into a single record. Use only the first name to identify each patient
+        While combining, if the same test is present in multiple reports for a patient, retain only the latest one.
         While combining, if there is any abnormality in the values, retain only the abnormal value, no matter how old it is. Also retain its date.
-        Your input will be an array of JSON. The output should also strictly be an array of JSON. There should not be anything written before or after the JSON string. This JSON string should be parsable by the insurance underwriter for further processing.
+        While combining, along with each observation, mention the date of the record and also the file name from which the record was extracted.
+        Your input will be an array of JSON. The output should also strictly be a JSON. There should not be anything written before or after the JSON string. This JSON string should be parsable by the insurance underwriter for further processing.
         The result will be forwarded to an insurance underwriter for risk assessment and policy approval.
     """
     messages = [
@@ -85,12 +87,21 @@ def summarize():
             medical_record_data = extract_text_from_pdf(pdf_path)
             prompt = build_prompt(medical_record_data)
             llm_response = call_llm(prompt)
+            llm_response = llm_response.strip()
+            if(llm_response.startswith("```json")):
+                llm_response = llm_response[7:].strip()
+            if(llm_response.endswith("```")):
+                llm_response = llm_response[:-3].strip()
             convert_to_json(llm_response, medical_summaries)
             # print("LLM response:\n", llm_response)
 
     # medical_record_data = extract_text_from_all_pdfs(medical_record_directory)
     combined_summary_prompt = build_prompt_to_combine_medical_record_summaries(medical_summaries)
     llm_response = call_llm(combined_summary_prompt)
+    if(llm_response.startswith("```json")):
+        llm_response = llm_response[7:].strip()
+    if(llm_response.endswith("```")):
+        llm_response = llm_response[:-3].strip()
     result = []
     convert_to_json(llm_response, result)
 
