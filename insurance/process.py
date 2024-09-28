@@ -29,8 +29,6 @@ def build_prompt(text):
         Identify any observed anomalies or concerns in the medical records.
         Abnormal Values:
         Highlight any test results or values that are outside the normal range (e.g., blood pressure, cholesterol, etc.), and mention the normal reference ranges for comparison.
-        Doctor's Notes:
-        Summarize any important comments or recommendations from doctors that are crucial for understanding the person's health.
         File name:
         Provide the name of the file from which the record was extracted.
         Each observation should have the date of the record mentioned along with it. This is very important because the observations from multiple reports will be compared using date later.
@@ -55,7 +53,7 @@ def build_prompt(text):
 def build_prompt_to_combine_medical_record_summaries(medical_record_summaries):
     sys_prompt = """
         You are an experienced doctor working for a reputable insurance company, who specializes in medical data summarization. You have a keen eye for detecting anomalies and predicting health risks based on medical records. Your task is to analyze the provided medical record summaries and combine them for a patient.
-        Your input will be an array of JSON which can either have records of a single patient, or have records of multiple patients. You should identify the records of the same patient and combine them into a single record. Use only the first name to identify each patient
+        Your input will be an array of JSON which can either have records of a single patient, or have records of multiple patients. You should identify the records of the same patient and combine them into a single record. Use the name to identify the patient.
         While combining, if the same test is present in multiple reports for a patient, retain only the latest one.
         While combining, if there is any abnormality in the values, retain only the abnormal value, no matter how old it is. Also retain its date.
         While combining, along with each observation, mention the date of the record and also the file name from which the record was extracted.
